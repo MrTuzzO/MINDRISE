@@ -4,7 +4,7 @@ Scalable **Django REST API backend** for an AI-powered mobile application focuse
 
 🔗 **GitHub Repository**: https://github.com/TechbyAbrar/mindrise_ai.git
 🎨 **Figma Design**: https://www.figma.com/design/OPGlAqtKKmfXaZrIXZVMwG/kalataylor514-%7C%7C-MindRiseAI
-🌐 **Live Link**: *(Add when deployed)*
+🌐 **Live Link**: *(Will be added soon)*
 
 ---
 
