@@ -41,18 +41,17 @@ class UserInformationList(APIView):
 
 class DashboardMetricsAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    data = {
-                "customers": get_total_customers_with_growth(),
-                "revenue": get_total_revenue_with_growth(),
-                "user_growth": get_user_growth_monthly(),
-            }
 
     def get(self, request):
+        data = {
+            "customers": get_total_customers_with_growth(),
+            "revenue": get_total_revenue_with_growth(),
+            "user_growth": get_user_growth_monthly(),
+        }
         return Response(
             {
                 "success": True,
                 "message": "Dashboard metrics fetched successfully",
-                "data": self.data,
+                "data": data,
             }
         )
