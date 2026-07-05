@@ -29,10 +29,9 @@ environ.Env.read_env(BASE_DIR / ".env")  # read .env
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG", cast=bool, default=False)
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
 # Application definition
 
@@ -191,12 +190,9 @@ SIMPLE_JWT = {
 
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True
-# CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=["http://localhost:3000"])
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -266,5 +262,5 @@ STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="")
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", default="")
 STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
-SUCCESS_URL = "https://www.facebook.com/"
-CANCEL_URL = "https://www.linkedin.com/"
+SUCCESS_URL = env("SUCCESS_URL", default="http://localhost:3000/success")
+CANCEL_URL = env("CANCEL_URL", default="http://localhost:3000/cancel")
