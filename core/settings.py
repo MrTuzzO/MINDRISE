@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-# import dj_database_url
+import dj_database_url
 DATABASES = {
     'default': dj_database_url.parse(
         env('DATABASE_URL'),
