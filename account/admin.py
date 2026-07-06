@@ -1,12 +1,26 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserChangeForm
 
 from .models import UserAuth
+
+
+class UserAuthChangeForm(UserChangeForm):
+    username = forms.CharField(
+        max_length=50,
+        required=False,
+        empty_value=None,
+    )
+
+    class Meta(UserChangeForm.Meta):
+        model = UserAuth
 
 
 @admin.register(UserAuth)
 class UserAuthAdmin(UserAdmin):
     model = UserAuth
+    form = UserAuthChangeForm  # Fix: handles nullable username without len(None) crash
 
     # Fields shown in user list
     list_display = (
