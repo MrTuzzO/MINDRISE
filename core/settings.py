@@ -264,3 +264,7 @@ STRIPE_WEBHOOK_SECRET = env("STRIPE_WEBHOOK_SECRET", default="")
 
 SUCCESS_URL = env("SUCCESS_URL", default="http://localhost:3000/success")
 CANCEL_URL = env("CANCEL_URL", default="http://localhost:3000/cancel")
+
+
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+APPLE_CLIENT_ID = env("APPLE_CLIENT_ID", default="")
