@@ -22,9 +22,21 @@ from typing import Any
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password     
 from .utils import decode_google_token, decode_apple_token
-from typing import Dict, Optional    
+from typing import Dict, Optional
 import logging
+from drf_spectacular.utils import extend_schema, OpenApiExample
+from rest_framework import serializers
 logger = logging.getLogger(__name__)
+
+
+class SocialLoginRequestSerializer(serializers.Serializer):
+    provider = serializers.ChoiceField(choices=["google", "apple"])
+    token = serializers.CharField(help_text="ID token issued by the provider")
+
+
+class SocialLoginResponseSerializer(serializers.Serializer):
+    access_token = serializers.CharField()
+    user = UserSerializer()
 
 class SignupAPIView(APIView):
     permission_classes = [AllowAny]
@@ -351,6 +363,22 @@ class ResetPasswordAPIView(APIView):
 class SocialLoginAPIView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        summary="Social login (Google / Apple)",
+        description=(
+            "Logs in an existing user or creates a new one from a Google or Apple ID token. "
+            "Returns an access token and the user profile."
+        ),
+        request=SocialLoginRequestSerializer,
+        responses={200: SocialLoginResponseSerializer},
+        examples=[
+            OpenApiExample(
+                "Google login request",
+                value={"provider": "google", "token": "<google-id-token>"},
+                request_only=True,
+            ),
+        ],
+    )
     @transaction.atomic
     def post(self, request: Any) -> Any:
         provider: str | None = request.data.get("provider")
