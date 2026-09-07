@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from .serializers import UserProfileUpdateInputSerializer
 
 from .serializers import SignupSerializer, UserSerializer, VerifyOTPSerializer
-from .services import send_otp_email, generate_tokens_for_user, generate_otp
+from .services import send_otp_email, generate_tokens_for_user, generate_otp, generate_username
 from .utils import get_otp_expiry
 from .response_handler import ResponseHandler  # Use class directly
 from .models import UserAuth
@@ -32,6 +32,16 @@ logger = logging.getLogger(__name__)
 class SocialLoginRequestSerializer(serializers.Serializer):
     provider = serializers.ChoiceField(choices=["google", "apple"])
     token = serializers.CharField(help_text="ID token issued by the provider")
+    full_name = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text=(
+            "Optional. Apple's identity token never includes the user's name - "
+            "the client only receives it once, from the native SDK, on the "
+            "user's very first authorization. Pass it here on first sign-in "
+            "if you want it stored; ignored for an existing user."
+        ),
+    )
 
 
 class SocialLoginResponseSerializer(serializers.Serializer):
@@ -383,6 +393,7 @@ class SocialLoginAPIView(APIView):
     def post(self, request: Any) -> Any:
         provider: str | None = request.data.get("provider")
         token: str | None = request.data.get("token")
+        client_full_name = (request.data.get("full_name") or "").strip() or None
 
         if not provider or not token:
             return ResponseHandler.bad_request("Provider and token are required")
@@ -402,10 +413,18 @@ class SocialLoginAPIView(APIView):
 
             email: str = user_data["email"]
 
+            username = generate_username(email)
+            while UserAuth.objects.filter(username=username).exists():
+                username = generate_username(email)
+
             user, created = UserAuth.objects.get_or_create(
                 email=email,
                 defaults={
-                    "full_name": user_data.get("full_name", email.split("@")[0]),
+                    "username": username,
+                    # client_full_name wins on creation only - it's how a name
+                    # actually reaches us for Apple, whose identity token
+                    # never carries one (see decode_apple_token).
+                    "full_name": client_full_name or user_data.get("full_name", email.split("@")[0]),
                     "profile_pic_url": user_data.get("profile_pic_url"),
                     "is_verified": True,
                 },
